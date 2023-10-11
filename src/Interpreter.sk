@@ -433,7 +433,7 @@ value class RD(vars: Vector<BitVec>) {
 // Abstract class that defines the eval() function to take a state and return a new
 // state as well as a bool to tell if there was a change.
 // ========================================================================================
-base class TransferFunction() {
+base class TransferFunction {
   fun eval(s: State): (Bool, State);
 }
 
@@ -526,7 +526,11 @@ fun permute(vec: mutable Ints): Ints {
 // no canges to the state at the end of one iteration.
 // Prints how many transfer functions where invoked.
 fun fixpoint(functions: TransferFunctions, state: State): State {
-	(current, steps) = (state, 0);
+  if (true) {
+      fixpoint2(functions, state);
+  }
+  else {
+  (current, steps) = (state, 0);
   loop {
 	   (i, change, indexes) = (0, false, indexes(functions));
 		 while (i < indexes.size()) {
@@ -536,6 +540,42 @@ fun fixpoint(functions: TransferFunctions, state: State): State {
 		 print_string("steps so far "+steps);
      if (!change) return current;
   };
+  };
+}
+
+fun fixpoint2(function : TransferFunctions, state : State) : State {
+    (current, steps) = (state, 0);
+    worklist = Vector<(Int, Int)>::mcreate();
+
+    worklist.push((0, 0));
+
+    while (worklist.size() > 0) {
+        (node_index, inst_index) = worklist.pop();
+
+        (update, !current) = function[node_index].eval(current);
+        print_string(worklist);
+        if (update) {
+            index = 0;
+            for (node in function) {
+                node match {
+                    | Edge(from, to) if (inst_index == from) -> 
+                        if (worklist.find(x -> x == (index, to)).isNone()) worklist.push((index, to))
+                    | Identity(l) if (inst_index == l && node_index != index) -> 
+                        if (worklist.find(x -> {(_, a) = x; a == l}).isNone()) worklist.push((index, l))
+                    | Def(l, _) if (inst_index == l && node_index != index) -> 
+                        if (worklist.find(x -> x == (index, l)).isNone()) worklist.push((index, l))
+                    | _ -> { void }
+                };
+
+                !index = index + 1;
+            };
+        };
+
+        !steps = steps + 1;
+    };
+
+    print_string("steps taken "+steps);
+    current;
 }
 
 // =======================================================================================

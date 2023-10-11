@@ -1,5 +1,5 @@
 #we are using ubuntu base image  || build for mac m2 with arm
-FROM  --platform=linux/arm64   ubuntu:20.04
+FROM  --platform=linux/amd64   ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
