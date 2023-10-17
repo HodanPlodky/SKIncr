@@ -553,13 +553,13 @@ fun fixpoint2(function : TransferFunctions, state : State) : State {
         (node_index, inst_index) = worklist.pop();
 
         (update, !current) = function[node_index].eval(current);
-        print_string(worklist);
+        //print_string(worklist);
         if (update) {
             index = 0;
             for (node in function) {
                 node match {
                     | Edge(from, to) if (inst_index == from) -> 
-                        if (worklist.find(x -> x == (index, to)).isNone()) worklist.push((index, to))
+                        if (worklist.find(x -> x == (index, to)).isNone()) if (to < from) worklist.push((index, to)) else worklist.insert(0, (index, to))
                     | Identity(l) if (inst_index == l && node_index != index) -> 
                         if (worklist.find(x -> {(_, a) = x; a == l}).isNone()) worklist.push((index, l))
                     | Def(l, _) if (inst_index == l && node_index != index) -> 
