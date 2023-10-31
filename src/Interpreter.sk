@@ -553,7 +553,6 @@ fun fixpoint2(function : TransferFunctions, state : State) : State {
         (node_index, inst_index) = worklist.pop();
 
         (update, !current) = function[node_index].eval(current);
-        //print_string(worklist);
         if (update) {
             index = 0;
             for (node in function) {
